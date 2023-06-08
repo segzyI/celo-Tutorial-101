@@ -429,4 +429,4 @@ You can refer to the image below:
 
 We learned how to build a rentals service smart contract on the Celo blockchain network. You can improve the functionalities or build an interactive user interface for the smart contract.
 
-The complete code is available on [github]([https://www.github.com/chrome/](https://github.com/segzyI/celo-Tutorial-101/blob/main/RentalServices.sol)).
+The complete code is available on [github](https://github.com/segzyI/celo-Tutorial-101/blob/main/RentalServices.sol).
