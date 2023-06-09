@@ -424,6 +424,7 @@ This code above defines a function called `markPropertyAsInactive` that takes in
 ## solidity overview of contract.
 
 
+```
 RentalServices
 
 Contract
@@ -497,6 +498,7 @@ event NewProperty(uint256 propertyId)
 NewBooking
 
 event NewBooking(uint256 propertyId, uint256 bookingId)
+```
     
 
 ## Test Smart Contract
