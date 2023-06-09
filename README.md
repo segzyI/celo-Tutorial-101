@@ -431,6 +431,8 @@ Contract
 
 RentalServices : contracts/The.sol
 
+
+
 Functions:
 
 rentOutproperty
@@ -448,6 +450,8 @@ name	string	Name of the property
 description	string	Short description of your property
 
 price	uint256	Price per day
+
+
 
 rentProperty
 
@@ -469,15 +473,29 @@ uint2str
 
 function uint2str(uint256 _i) internal pure returns (string)
 
+
+
+
+
 _createBooking
 
 function _createBooking(uint256 _propertyId, uint256 checkInDate, uint256 checkoutDate) internal
+
+
+
+
 
 _sendFunds
 
 function _sendFunds(address propertyOwner, uint256 value) internal
 
+
+
+
+
+
 markPropertyAsInactive
+
 
 function markPropertyAsInactive(uint256 _propertyId) public
 
@@ -489,11 +507,15 @@ Name	Type	Description
 
 _propertyId	uint256	Property ID
 
+
+
 Events:
 
 NewProperty
 
 event NewProperty(uint256 propertyId)
+
+
 
 NewBooking
 
