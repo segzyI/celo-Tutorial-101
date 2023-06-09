@@ -419,6 +419,84 @@ This code above defines a function called `markPropertyAsInactive` that takes in
 * `require(properties[_propertyId].owner == msg.sender, "THIS IS NOT YOUR PROPERTY")`: This checks whether `msg.sender` (i.e., the caller of the function) is the owner of the specified property. If the caller is not the owner, the function will throw an error message.
     
 * `properties[_propertyId].isActive = false`: This sets the owner's property `isActive` to `false`, effectively making it inactive.
+
+
+## solidity overview of contract.
+
+
+RentalServices
+
+Contract
+
+RentalServices : contracts/The.sol
+
+Functions:
+
+rentOutproperty
+
+function rentOutproperty(string name, string description, uint256 price) public
+
+Put up a property in the market
+
+Parameters
+
+Name	Type	Description
+
+name	string	Name of the property
+
+description	string	Short description of your property
+
+price	uint256	Price per day
+
+rentProperty
+
+function rentProperty(uint256 _propertyId, uint256 checkInDate, uint256 checkoutDate) public payable
+
+Make a booking
+
+Parameters
+
+Name	Type	Description
+
+_propertyId	uint256	id of the property to rent out
+
+checkInDate	uint256	Check-in date
+
+checkoutDate	uint256	Check-out date
+
+uint2str
+
+function uint2str(uint256 _i) internal pure returns (string)
+
+_createBooking
+
+function _createBooking(uint256 _propertyId, uint256 checkInDate, uint256 checkoutDate) internal
+
+_sendFunds
+
+function _sendFunds(address propertyOwner, uint256 value) internal
+
+markPropertyAsInactive
+
+function markPropertyAsInactive(uint256 _propertyId) public
+
+Take down the property from the market
+
+Parameters
+
+Name	Type	Description
+
+_propertyId	uint256	Property ID
+
+Events:
+
+NewProperty
+
+event NewProperty(uint256 propertyId)
+
+NewBooking
+
+event NewBooking(uint256 propertyId, uint256 bookingId)
     
 
 ## Test Smart Contract
