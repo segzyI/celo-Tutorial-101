@@ -185,13 +185,17 @@ This is the first function you will add to your smart contract.
 
 ```solidity
 function rentOutproperty(string memory name, string memory description, uint256 price) public {
+
     Property memory property = Property(name, description, true /* isActive */, price, msg.sender /* owner */, new bool[](365));
 
     // Persist `property` object to the "permanent" storage
-    properties[propertyId] = property;
+
+    properties[propertyId++] = property;
 
     // emit an event to notify the clients
+
     emit NewProperty(propertyId++);
+
   }
 ```
 
@@ -214,34 +218,101 @@ Add the code below to your smart contract.
 
 ```solidity
 function rentProperty(uint256 _propertyId, uint256 checkInDate, uint256 checkoutDate) public payable {
+
     // Retrieve `property` object from the storage
+
     Property storage property = properties[_propertyId];
 
+    // Check that property ID is valid
+
+    require(property.owner != address(0), "Invalid property ID");
+
+    // Check that property is active
+
+    require(property.isActive == true, "Property with this ID is not active");
+
+    // Check that checkInDate is before checkoutDate
+
+    require(checkInDate < checkoutDate, "Invalid date range");
+
     // check that property is active
+
     require(
+
       property.isActive == true,
+
       "property with this ID is not active"
+
     );
 
-    // check that property is available for the dates
-    for (uint256 i = checkInDate; i < checkoutDate; i++) {
+    // Check the availability of the property for the specified dates
+
+    uint256[] memory bookedDates;
+
+    uint256 bookedDatesCount = 0;
+
+    for (uint256 i = checkInDate; i <= checkoutDate; i++) {
+
       if (property.isBooked[i] == true) {
-        // if property is booked on a day, revert the transaction
-        revert("property is not available for the selected dates");
+
+        // Property is already booked on this date, store the booked date
+
+        bookedDates[bookedDatesCount] = i;
+
+        bookedDatesCount++;
+
       }
+
     }
 
+    // If any dates are already booked, revert the transaction with the booked dates
+
+      if (bookedDatesCount > 0) {
+
+      string memory errorMessage = string(abi.encodePacked("Property is not available for the following dates: "));
+
+      for (uint256 i = 0; i < bookedDatesCount; i++) {
+
+      errorMessage = string(abi.encodePacked(errorMessage, uint2str(bookedDates[i])));
+
+      if (i < bookedDatesCount - 1) {
+
+        errorMessage = string(abi.encodePacked(errorMessage, ", "));
+
+       }
+
+      }
+
+      revert(errorMessage);
+
+      }
+
+    // Calculate the total booking price using SafeMath
+
+    uint256 numberOfDays = checkoutDate.sub(checkInDate);
+
+    uint256 totalPrice = property.price.mul(numberOfDays);
+
+     
+
     // Check the customer has sent an amount equal to (pricePerDay * numberOfDays)
+
     require(
-      msg.value == property.price * (checkoutDate - checkInDate) * 1e18,
+
+      msg.value == totalPrice * (checkoutDate - checkInDate),
+
       "Sent insufficient funds"
+
     );
 
     // send funds to the owner of the property
+
     _sendFunds(property.owner, msg.value);
 
     // conditions for a booking are satisfied, so make the booking
+
     _createBooking(_propertyId, checkInDate, checkoutDate);
+
   }
 ```
 
@@ -268,19 +339,31 @@ Add the code below to your smart contract.
 
 ```solidity
 function _createBooking(uint256 _propertyId, uint256 checkInDate, uint256 checkoutDate) internal {
+
+    // Increment the booking ID before assigning it
+
+    bookingId++;
+
     // Create a new booking object
+
     bookings[bookingId] = Booking(_propertyId, checkInDate, checkoutDate, msg.sender);
 
     // Retrieve `property` object from the storage
+
     Property storage property = properties[_propertyId];
 
     // Mark the property booked on the requested dates
+
     for (uint256 i = checkInDate; i < checkoutDate; i++) {
+
       property.isBooked[i] = true;
+
     }
 
     // Emit an event to notify clients
+
     emit NewBooking(_propertyId, bookingId++);
+
   }
 ```
 
@@ -299,7 +382,9 @@ Add the code below to your smart contract.
 
 ```solidity
 function _sendFunds (address propertyOwner, uint256 value) internal {
+
     payable(propertyOwner).transfer(value);
+
   }
 ```
 
@@ -313,12 +398,19 @@ Add the code below to your smart contract.
 
 ```solidity
 function markPropertyAsInactive(uint256 _propertyId) public {
+
     require(
+
       properties[_propertyId].owner == msg.sender,
+
       "THIS IS NOT YOUR PROPERTY"
+
     );
+
     properties[_propertyId].isActive = false;
+
   }
+
 }
 ```
 
