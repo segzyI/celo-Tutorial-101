@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity >=0.8.0 <0.9.0;
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract RentalServices {
+
+using SafeMath for uint256;
 
   // struct for Property to be rented out
   struct Property {
@@ -56,7 +59,7 @@ contract RentalServices {
     Property memory property = Property(name, description, true /* isActive */, price, msg.sender /* owner */, new bool[](365));
 
     // Persist `property` object to the "permanent" storage
-    properties[propertyId] = property;
+    properties[propertyId++] = property;
 
     // emit an event to notify the clients
     emit NewProperty(propertyId++);
@@ -72,23 +75,51 @@ contract RentalServices {
     // Retrieve `property` object from the storage
     Property storage property = properties[_propertyId];
 
+    // Check that property ID is valid
+    require(property.owner != address(0), "Invalid property ID");
+
+    // Check that property is active
+    require(property.isActive == true, "Property with this ID is not active");
+
+    // Check that checkInDate is before checkoutDate
+    require(checkInDate < checkoutDate, "Invalid date range");
+
     // check that property is active
     require(
       property.isActive == true,
       "property with this ID is not active"
     );
 
-    // check that property is available for the dates
-    for (uint256 i = checkInDate; i < checkoutDate; i++) {
+    // Check the availability of the property for the specified dates
+    uint256[] memory bookedDates;
+    uint256 bookedDatesCount = 0;
+    for (uint256 i = checkInDate; i <= checkoutDate; i++) {
       if (property.isBooked[i] == true) {
-        // if property is booked on a day, revert the transaction
-        revert("property is not available for the selected dates");
+        // Property is already booked on this date, store the booked date
+        bookedDates[bookedDatesCount] = i;
+        bookedDatesCount++;
       }
     }
 
+    // If any dates are already booked, revert the transaction with the booked dates
+      if (bookedDatesCount > 0) {
+      string memory errorMessage = string(abi.encodePacked("Property is not available for the following dates: "));
+      for (uint256 i = 0; i < bookedDatesCount; i++) {
+      errorMessage = string(abi.encodePacked(errorMessage, uint2str(bookedDates[i])));
+      if (i < bookedDatesCount - 1) {
+        errorMessage = string(abi.encodePacked(errorMessage, ", "));
+       }
+      }
+      revert(errorMessage);
+      }
+
+    // Calculate the total booking price using SafeMath
+    uint256 numberOfDays = checkoutDate.sub(checkInDate);
+    uint256 totalPrice = property.price.mul(numberOfDays);
+     
     // Check the customer has sent an amount equal to (pricePerDay * numberOfDays)
     require(
-      msg.value == property.price * (checkoutDate - checkInDate),
+      msg.value == totalPrice * (checkoutDate - checkInDate),
       "Sent insufficient funds"
     );
 
@@ -99,7 +130,33 @@ contract RentalServices {
     _createBooking(_propertyId, checkInDate, checkoutDate);
   }
 
+  // Helper function to convert uint to string
+  function uint2str(uint256 _i) internal pure returns (string memory) {
+    if (_i == 0) {
+        return "0";
+          }
+     uint256 j = _i;
+    uint256 length;
+    while (j != 0) {
+      length++;
+      j /= 10;
+    }
+    bytes memory bstr = new bytes(length);
+    uint256 k = length;
+    while (_i != 0) {
+    k = k - 1;
+    uint256 remainder = _i % 10;
+    _i /= 10;
+    bstr[k] = bytes1(uint8(48 + remainder));
+    }
+    return string(bstr);
+    }
+
   function _createBooking(uint256 _propertyId, uint256 checkInDate, uint256 checkoutDate) internal {
+
+    // Increment the booking ID before assigning it
+    bookingId++;
+
     // Create a new booking object
     bookings[bookingId] = Booking(_propertyId, checkInDate, checkoutDate, msg.sender);
 
@@ -131,3 +188,11 @@ contract RentalServices {
     properties[_propertyId].isActive = false;
   }
 }
+
+
+
+  
+
+
+
+
