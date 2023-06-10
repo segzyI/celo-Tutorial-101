@@ -1,16 +1,37 @@
 # How to Build a Rental Service Smart Contract on Celo Blockchain Network
 
-In this tutorial, you will build a rental service smart contract on the [Celo](https://celo.org/) blockchain network. This will enable users to spend Celo on transactions.
+In this tutorial, we will learn how to create a special computer program called a "smart contract." This program works on a special kind of internet called the Celo network. 
 
-A rental service is a business that provides customers or users the ability to temporarily use a good or service for a fee. The rental service can apply to a wide range of products, including vehicles, equipment, appliances, and more.
+Imagine you have a toy that you really like, but you don't want to give it away forever. Instead, you want to let your friends borrow it for a short time and then return it to you. That's what a rental service is like!
 
-Rental services have become popular because they offer individuals and businesses a flexible way to access and use various items without incurring the full cost of ownership. This flexibility allows customers or users to use a product when they need it, without the burdensome responsibility of maintenance, storage, and repairs.
+A rental service is a way for people to share things they have, like toys, bikes, or even tools. Instead of owning these things, people can borrow them for a little while and then give them back. And in our special computer program, people will use a special kind of money called "Celo" to do this.
 
-Overall, rental services have proven to be a helpful solution for many people seeking to use temporary goods or services.
+Rental services are popular because they help people use things they need without having to buy and own them all the time. This way, they can use a toy or a tool when they need it, but they don't have to worry about taking care of it all the time.
+
+So, in our tutorial, we will learn how to make this special computer program that will let people share their things and borrow them using Celo money. It's like a fun way to share and play together!
 
 Examples of rental services companies include [Airbnb](https://www.airbnb.com/), [Enterprise Rent-A-Car](https://www.enterprise.com/en/home.html), [Zipcar](https://www.zipcar.com/) among many others.
 
 ## Table of Contents
+ - [Prerequisites](#prerequisites)
+  - [Requirements](#requirements)
+  - [Building our smart contract](#building-our-smart-contract)
+  - [Create Data Structures](#create-data-structures)
+  - [Define Events](#define-events)
+  - [Smart Contract Functions](#smart-contract-functions)
+    - [rentOutProperty Function](#rentoutproperty-function)
+    - [rentProperty Function](#rentproperty-function)
+    - [createBooking Function](#_createbooking-function)
+    - [sendFund Function](#_sendfund-function)
+    - [MarkPropertyAsInactive Function](#_markpropertyasinactive-function)
+  - [Full Smart Contract](#full-smart-contract)
+  - [Test Smart Contract](#test-smart-contract)
+    - [Test rentOutProperty Function](#test-rentoutproperty-function)
+    - [Test rentProperty Function](#test-rentproperty-function)
+    - [Test bookings Mapping](#test-bookings-mapping)
+    - [Test properties Mapping](#test-properties-mapping)
+    - [Test markPropertyAsInactive Function](#test-markpropertyasinactive-function)
+  - [Conclusion](#conclusion)
 
 ## Prerequisites
 
@@ -307,7 +328,7 @@ This code above defines a `_sendFunds` function, which takes in two parameters -
 
 `payable(propertyOwner).transfer(value)` :This transfers the specified `value` of Celo to the `propertyOwner` address.
 
-#### `_MarkPropropertyAsInactive` Function
+#### `_MarkPropertyAsInactive` Function
 
 Add the code below to your smart contract.
 
@@ -327,6 +348,143 @@ This code above defines a function called `markPropertyAsInactive` that takes in
 * `require(properties[_propertyId].owner == msg.sender, "THIS IS NOT YOUR PROPERTY")`: This checks whether `msg.sender` (i.e., the caller of the function) is the owner of the specified property. If the caller is not the owner, the function will throw an error message.
     
 * `properties[_propertyId].isActive = false`: This sets the owner's property `isActive` to `false`, effectively making it inactive.
+
+## Full Smart Contract
+```solidity
+// SPDX-License-Identifier: MIT
+
+pragma solidity >=0.8.0 <0.9.0;
+
+contract RentalServices {
+
+  // struct for Property to be rented out
+  struct Property {
+    string name;
+    string description;
+    bool isActive; // is property active
+    uint256 price; // per day price 
+    address owner; // property owner
+    bool[] isBooked;
+    // Is the property booked on a particular day,
+    // For the sake of simplicity, we assign 0 to Jan 1, 1 to Jan 2 and so on
+    // so isBooked[31] will denote whether the property is booked for Feb 1
+  }
+
+  uint256 public propertyId;
+
+  // mapping of propertyId to Property object
+  mapping(uint256 => Property) public properties;
+
+  // Details of a particular booking
+  struct Booking {
+    uint256 propertyId;
+    uint256 checkInDate;
+    uint256 checkoutDate;
+    address user;
+  }
+
+  uint256 public bookingId;
+
+  // mapping of bookingId to Booking object
+  mapping(uint256 => Booking) public bookings;
+
+  // This event is emitted when a new property is put up for sale
+  event NewProperty (
+    uint256 indexed propertyId
+  );
+
+  // This event is emitted when a NewBooking is made
+  event NewBooking (
+    uint256 indexed propertyId,
+    uint256 indexed bookingId
+  );
+
+  /**
+   * @dev Put up a property in the market
+   * @param name Name of the property
+   * @param description Short description of your property
+   * @param price Price per day 
+   */
+  function rentOutproperty(string memory name, string memory description, uint256 price) public {
+    Property memory property = Property(name, description, true /* isActive */, price, msg.sender /* owner */, new bool[](365));
+
+    // Persist `property` object to the "permanent" storage
+    properties[propertyId] = property;
+
+    // emit an event to notify the clients
+    emit NewProperty(propertyId++);
+  }
+
+  /**
+   * @dev Make a booking
+   * @param _propertyId id of the property to rent out
+   * @param checkInDate Check-in date
+   * @param checkoutDate Check-out date
+   */
+  function rentProperty(uint256 _propertyId, uint256 checkInDate, uint256 checkoutDate) public payable {
+    // Retrieve `property` object from the storage
+    Property storage property = properties[_propertyId];
+
+    // check that property is active
+    require(
+      property.isActive == true,
+      "property with this ID is not active"
+    );
+
+    // check that property is available for the dates
+    for (uint256 i = checkInDate; i < checkoutDate; i++) {
+      if (property.isBooked[i] == true) {
+        // if property is booked on a day, revert the transaction
+        revert("property is not available for the selected dates");
+      }
+    }
+
+    // Check the customer has sent an amount equal to (pricePerDay * numberOfDays)
+    require(
+      msg.value == property.price * (checkoutDate - checkInDate),
+      "Sent insufficient funds"
+    );
+
+    // send funds to the owner of the property
+    _sendFunds(property.owner, msg.value);
+
+    // conditions for a booking are satisfied, so make the booking
+    _createBooking(_propertyId, checkInDate, checkoutDate);
+  }
+
+  function _createBooking(uint256 _propertyId, uint256 checkInDate, uint256 checkoutDate) internal {
+    // Create a new booking object
+    bookings[bookingId] = Booking(_propertyId, checkInDate, checkoutDate, msg.sender);
+
+    // Retrieve `property` object from the storage
+    Property storage property = properties[_propertyId];
+
+    // Mark the property booked on the requested dates
+    for (uint256 i = checkInDate; i < checkoutDate; i++) {
+      property.isBooked[i] = true;
+    }
+
+    // Emit an event to notify clients
+    emit NewBooking(_propertyId, bookingId++);
+  }
+
+  function _sendFunds (address propertyOwner, uint256 value) internal {
+    payable(propertyOwner).transfer(value);
+  }
+
+  /**
+   * @dev Take down the property from the market
+   * @param _propertyId Property ID
+   */
+  function markPropertyAsInactive(uint256 _propertyId) public {
+    require(
+      properties[_propertyId].owner == msg.sender,
+      "THIS IS NOT YOUR PROPERTY"
+    );
+    properties[_propertyId].isActive = false;
+  }
+}
+```
     
 
 ## Test Smart Contract
