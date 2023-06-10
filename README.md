@@ -23,9 +23,15 @@ Examples of rental services companies include [Airbnb](https://www.airbnb.com/),
     - [rentProperty Function](#rentproperty-function)
     - [createBooking Function](#_createbooking-function)
     - [sendFund Function](#_sendfund-function)
-    - [MarkPropropertyAsInactive Function](#_markpropropertyasinactive-function)
+    - [MarkPropertyAsInactive Function](#_markpropertyasinactive-function)
   - [Full Smart Contract](#full-smart-contract)
   - [Test Smart Contract](#test-smart-contract)
+    - [Test rentOutProperty Function](#test-rentoutproperty-function)
+    - [Test rentProperty Function](#test-rentproperty-function)
+    - [Test bookings Mapping](#test-bookings-mapping)
+    - [Test properties Mapping](#test-properties-mapping)
+    - [Test markPropertyAsInactive Function](#test-markpropertyasinactive-function)
+  - [Conclusion](#conclusion)
 
 ## Prerequisites
 
@@ -322,7 +328,7 @@ This code above defines a `_sendFunds` function, which takes in two parameters -
 
 `payable(propertyOwner).transfer(value)` :This transfers the specified `value` of Celo to the `propertyOwner` address.
 
-#### `_MarkPropropertyAsInactive` Function
+#### `_MarkPropertyAsInactive` Function
 
 Add the code below to your smart contract.
 
