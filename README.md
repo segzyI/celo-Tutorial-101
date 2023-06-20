@@ -1,70 +1,86 @@
-# How to Build a Rental Service Smart Contract on Celo Blockchain Network
+# How to Build a Rental Service Smart Contract on Celo Blockchain Network:
 
-In this tutorial, you will build a rental service smart contract on the [Celo](https://celo.org/) blockchain network. This will enable users to spend Celo on transactions.
+## Introduction:
 
-A rental service is a business that provides customers or users the ability to temporarily use a good or service for a fee. The rental service can apply to a wide range of products, including vehicles, equipment, appliances, and more.
+In this tutorial, you will build a Rental Service Smart Contract on the [Celo](https://celo.org/) blockchain network. This will enable users to spend Celo on transactions.
 
-Rental services have become popular because they offer individuals and businesses a flexible way to access and use various items without incurring the full cost of ownership. This flexibility allows customers or users to use a product when they need it, without the burdensome responsibility of maintenance, storage, and repairs.
+A rental service is a business that provides customers or users the ability to temporarily use a good or service for a fee. The rental service can apply to a wide range of products including vehicles, equipment, appliances etc.
+
+Rental services have become popular because they offer individuals and businesses a flexible way to access and use various items without incurring the full cost of ownership. This flexibility allows customers or users to use a product when they need it, without the burdensome responsibility of maintenance, storage and repairs.
 
 Overall, rental services have proven to be a helpful solution for many people seeking to use temporary goods or services.
 
 Examples of rental services companies include [Airbnb](https://www.airbnb.com/), [Enterprise Rent-A-Car](https://www.enterprise.com/en/home.html), [Zipcar](https://www.zipcar.com/) among many others.
 
-## Table of Contents
+## Table of Contents:
 
-## Prerequisites
+- [Introduction](#introduction)
+- [Pre-requisites](#pre-requisites)
+- [Requirements](#requirements)
+- [Building our Smart Contract](#building-our-smart-contract)
+- [Create Data Structures](#create-data-structures)
+- [Define Events](#define-events)
+- [Smart Contract Functions](#smart-contract-functions)
+    - [rentOutProperty Function](#rentoutproperty-function)
+    - [rentProperty Function](#rentproperty-function)
+    - [createBooking Function](#_createbooking-function)
+    - [sendFund Function](#_sendfund-function)
+    - [MarkPropropertyAsInactive Function](#_markpropropertyasinactive-function)
+- (Entire Code)[#entire-code]
+- [Full Smart Contract](#full-smart-contract)
+- [Test Smart Contract](#test-smart-contract)
+- [Conclusion](#conclusion)
+
+## Pre-requisites:
 
 To get the most out of this tutorial a proper understanding of the following is required:
 
-* [Blockcahin technology](https://dacade.org/communities/blockchain/courses/intro-to-blockchain/learning-modules/905c0ff7-7199-445d-b17e-ac0bc39ffa78)
+1. [Blockcahin technology](https://dacade.org/communities/blockchain/courses/intro-to-blockchain/learning-modules/905c0ff7-7199-445d-b17e-ac0bc39ffa78)
+       
+2. [Solidity programming language](https://soliditylang.org/)
     
-* [Solidity programming language](https://soliditylang.org/)
+## Requirements:
+
+To get started you need the following tools installed:
+
+1. [Chromium-based browser](https://www.google.com/chrome/)
     
-
-## Requirements
-
-To get started you need the following tools installed
-
-* [Chromium-based browser](https://www.google.com/chrome/)
+2. [Metamask extension wallet](https://metamask.io/download/)
     
-* [Metamask extension wallet](https://metamask.io/download/)
+3. [Celo extension wallet](https://chrome.google.com/webstore/detail/celoextensionwallet/kkilomkmpmkbdnfelcpgckmpcaemjcdh)
     
-* [Celo extension wallet](https://chrome.google.com/webstore/detail/celoextensionwallet/kkilomkmpmkbdnfelcpgckmpcaemjcdh)
-    
-* Good internet connection
-    
+4. [Remix IDE](https://remix.ethereum.org/).
+   
+5. Good internet connection.
 
-## Building our smart contract
+## Building our Smart Contract:
 
-In this section, we will build the smart contract for our application.
+In this section, we will build the Smart Contract for our application.
 
-### Create a Solidity File
+### Create a Solidity File:
 
-Before you start building your smart contract,
+Before you start building your Smart Contract:
 
 1. Navigate to [Remix IDE](https://remix.ethereum.org/).
     
-2. Create a new File
+2. Create a new File.
     
 3. Name it `RentalServices.sol`
     
-
 If you don't know how to create a file in Remix IDE, follow this [link](https://remix-ide.readthedocs.io/en/latest/file_explorer.html#creating-new-files).
 
-### Create Data Structures
+### Create Data Structures:
 
 For this tutorial, you will create two data structures(Struct):
 
-* **Property Struct**: This will hold information about the property on rent.
+1. **Property Struct**: This will hold information about the property on rent.
     
-* **Booking Struct**: This will hold information about booked properties.
+2. **Booking Struct**: This will hold information about booked properties.
     
-
 Add the code below to `RentalServices.sol`
 
 ```solidity
 // SPDX-License-Identifier: MIT
-
 pragma solidity >=0.8.0 <0.9.0;
 
 contract RentalServices {
@@ -88,37 +104,34 @@ contract RentalServices {
   mapping(uint256 => Property) public properties;
 ```
 
-At the top of our code, we have the following
+At the top of our code, we have the following:
 
-* `// SPDX-License-Identifier: MIT` : This is a special type of comment in Solidity that indicates the software license that the smart contract is released under. In our code, we specified the `MIT` license,
+1. `// SPDX-License-Identifier: MIT`: This is a special type of comment in Solidity that indicates the software license that the Smart Contract is released under. In our code, we specified the `MIT` license,
     
-* `pragma solidity >=0.8.0 <0.9.0`: This is a compiler directive that tells the Solidity compiler which version of the language to use. In this case, we specified that the contract should be compiled using a version of Solidity that is greater than or equal to `0.8.0` and less than `0.9.0`.
+2. `pragma solidity >=0.8.0 <0.9.0`: This is a compiler directive that tells the Solidity compiler which version of the language to use. In this case, we specified that the contract should be compiled using a version of Solidity that is greater than or equal to `0.8.0` and less than `0.9.0`.
     
-* `contract RentalServices`: The contract keyword declares a contract under which our code is encapsulated.
+3. `contract RentalServices`: The contract keyword declares a contract under which our code is encapsulated.
     
-
 Next, we declared `struct Property` with some properties:
 
-* `string name`: This is the name of the property to be rented out.
+1. `string name`: This is the name of the property to be rented out.
     
-* `string description`: This gives a description of the property.
+2. `string description`: This gives a description of the property.
     
-* `bool isActive`: A flag that denotes if the property is active or not.
+3. `bool isActive`: A flag that denotes if the property is active or not.
     
-* `uint256 price` : This is the price per day to rent the property.
+4. `uint256 price` : This is the price per day to rent the property.
     
-* `address owner` : The Celo address of the person who owns the property.
+5. `address owner` : The Celo address of the person who owns the property.
     
-* `bool[] isBooked`: This is an array of boolean values that denote whether the property is booked or not on a particular day.
+6. `bool[] isBooked`: This is an array of boolean values that denote whether the property is booked or not on a particular day.
     
+Next, we declared some state variables:
 
-Next, we declared some state variables
-
-* `uint256 public propertyId`: This is a public variable of type `uint256` that will hold the unique identifier for each property.
+1. `uint256 public propertyId`: This is a public variable of type `uint256` that will hold the unique identifier for each property.
     
-* `mapping(uint256 => Property) public properties`: This is a mapping that will store the information about each rental property using its unique `propertyId` as the key.
+2. `mapping(uint256 => Property) public properties`: This is a mapping that will store the information about each rental property using its unique `propertyId` as the key.
     
-
 Now, we need to create a Bookings struct. Add the code below to your existing code.
 
 ```solidity
@@ -137,23 +150,21 @@ Now, we need to create a Bookings struct. Add the code below to your existing co
 
 The code above declares a new struct called `Booking` that has four variables:
 
-* `uint256 propertyId`: This specifies a unique ID that identifies the property being booked.
+1. `uint256 propertyId`: This specifies a unique ID that identifies the property being booked.
     
-* `uint256 checkInDate`: This specifies the booking start date.
+2. `uint256 checkInDate`: This specifies the booking start date.
     
-* `uint256 checkoutDate`: This specifies the date booking end date.
+3. `uint256 checkoutDate`: This specifies the date booking end date.
     
-* `address user`: The address of the user who booked the property.
+4. `address user`: The address of the user who booked the property.
     
+Next, we declared some state variables:
 
-Next, we declared some state variables
-
-* `uint256 public bookingId`: This is a public variable of type `uint256` that will hold the unique identifier for each booking.
+1. `uint256 public bookingId`: This is a public variable of type `uint256` that will hold the unique identifier for each booking.
     
-* `mapping(uint256 => Booking) public bookings`: This is a mapping that will store the information about each booking using its unique `bookingId` as the key.
+2. `mapping(uint256 => Booking) public bookings`: This is a mapping that will store the information about each booking using its unique `bookingId` as the key.
     
-
-### Define Events
+### Define Events:
 
 Next, we will create some events. Add the code below to `RentalServices.sol`.
 
@@ -170,18 +181,17 @@ Next, we will create some events. Add the code below to `RentalServices.sol`.
   );
 ```
 
-* `event NewProperty`: This event is emitted when a new property is put up for sale.
+1. `event NewProperty`: This event is emitted when a new property is put up for sale.
     
-* `event NewBooking`: This event is emitted when a NewBooking is made.
+2. `event NewBooking`: This event is emitted when a NewBooking is made.
     
+### Smart Contract Functions:
 
-### Smart Contract Functions
+In this section, we will write some functions that are required to build our rental services Smart Contract.
 
-In this section, we will write some functions that are required to build our rental services smart contract.
+#### `rentOutProperty` Function:
 
-#### `rentOutProperty` Function
-
-This is the first function you will add to your smart contract.
+This is the first function you will add to your Smart Contract.
 
 ```solidity
 function rentOutproperty(string memory name, string memory description, uint256 price) public {
@@ -195,22 +205,21 @@ function rentOutproperty(string memory name, string memory description, uint256 
   }
 ```
 
-The `rentOutProperty` function allows users to list their property for rent on our smart contract. Below is a detailed explanation of the function:
+The `rentOutProperty` function allows users to list their property for rent on our Smart Contract. Below is a detailed explanation of the function:
 
-* The `rentOutProperty` function takes 3 parameters that describe the property. The `name` and `description` as strings, and the rental `price` as an unsigned integer.
+1. The `rentOutProperty` function takes 3 parameters that describe the property. The `name` and `description` as strings, and the rental `price` as an unsigned integer.
     
-* A `Property` struct is created with the provided parameters, along with a set of boolean values to show availability on each day of the year.
+2. A `Property` struct is created with the provided parameters, along with a set of boolean values to show availability on each day of the year.
     
-* The struct is stored in a mapping called `properties` with `propertyId` as its key.
+3. The struct is stored in a mapping called `properties` with `propertyId` as its key.
     
-* The function emits an event `NewProperty`.
+4. The function emits an event `NewProperty`.
     
-* The `propertyId` variable is incremented to be assigned to the next property added to the database.
+5. The `propertyId` variable is incremented to be assigned to the next property added to the database.
     
+#### `rentProperty` Function:
 
-#### `rentProperty` Function
-
-Add the code below to your smart contract.
+Add the code below to your Smart Contract.
 
 ```solidity
 function rentProperty(uint256 _propertyId, uint256 checkInDate, uint256 checkoutDate) public payable {
@@ -247,24 +256,23 @@ function rentProperty(uint256 _propertyId, uint256 checkInDate, uint256 checkout
 
 The `rentProperty` function allows users to rent listed properties on our smart contract. Below is a detailed explanation of the function:
 
-* The `rentProperty` function allows a user to rent a specific property by passing the `propertyId`, the `checkInDate`, and the `checkOutDate`.
+1. The `rentProperty` function allows a user to rent a specific property by passing the `propertyId`, the `checkInDate`, and the `checkOutDate`.
     
-* The function retrieves the `Property` struct from the storage using the provided `propertyId`.
+2. The function retrieves the `Property` struct from the storage using the provided `propertyId`.
     
-* The function checks if the property is active by checking the `property.isActive` value.
+3. The function checks if the property is active by checking the `property.isActive` value.
     
-* The `rentProperty` function checks if the property is available for the specified dates by checking the `property.isBooked` value for each day between `checkInDate` and `checkOutDate`. If the property is booked on any day, the transaction reverts.
+4. The `rentProperty` function checks if the property is available for the specified dates by checking the `property.isBooked` value for each day between `checkInDate` and `checkOutDate`. If the property is booked on any day, the transaction reverts.
     
-* The `rentProperty` function requires that the user has sent the right amount for the duration of renting the property.
+5. The `rentProperty` function requires that the user has sent the right amount for the duration of renting the property.
     
-* If the payment transaction is successful,l `_sendFunds` function is called.
+6. If the payment transaction is successful,l `_sendFunds` function is called.
     
 * Finally, if all conditions are met, `_createBooking` function is called.
     
+#### `_createBooking` Function:
 
-#### `_createBooking` Function
-
-Add the code below to your smart contract.
+Add the code below to your Smart Contract.
 
 ```solidity
 function _createBooking(uint256 _propertyId, uint256 checkInDate, uint256 checkoutDate) internal {
@@ -286,16 +294,15 @@ function _createBooking(uint256 _propertyId, uint256 checkInDate, uint256 checko
 
 This code above defines `_createBooking` function, which takes in three parameters- `_propertyId`, `checkInDate`, and `checkoutDate`. Below is a detailed explanation of the function:
 
-* `bookings[bookingId] = Booking(_propertyId, checkInDate, checkoutDate, msg.sender)`: This creates a new `Booking` struct with the struct variables `_propertyId`, `checkInDate`, `checkoutDate`, and `msg.sender` and maps it in the `bookings` mapping at the index of `bookingId`.
+1. `bookings[bookingId] = Booking(_propertyId, checkInDate, checkoutDate, msg.sender)`: This creates a new `Booking` struct with the struct variables `_propertyId`, `checkInDate`, `checkoutDate`, and `msg.sender` and maps it in the `bookings` mapping at the index of `bookingId`.
     
-* `Property storage property = properties[_propertyId]`:This retrieves the `Property` struct corresponding to the passed `_propertyId` from the storage and assigns it to the local variable `property`.
+2. `Property storage property = properties[_propertyId]`:This retrieves the `Property` struct corresponding to the passed `_propertyId` from the storage and assigns it to the local variable `property`.
     
-* `for (uint256 i = checkInDate; i < checkoutDate; i++) { property.isBooked[i] = true`: This loops through the dates from `checkInDate` to `checkoutDate`. For each date within the range, it sets the corresponding `isBooked` value at `property.isBooked[i]` to `true`. This marks the property as booked for the dates within that range.
+3. `for (uint256 i = checkInDate; i < checkoutDate; i++) { property.isBooked[i] = true`: This loops through the dates from `checkInDate` to `checkoutDate`. For each date within the range, it sets the corresponding `isBooked` value at `property.isBooked[i]` to `true`. This marks the property as booked for the dates within that range.
     
+#### `_sendFund` Function:
 
-#### `_sendFund` Function
-
-Add the code below to your smart contract.
+Add the code below to your Smart Contract:
 
 ```solidity
 function _sendFunds (address propertyOwner, uint256 value) internal {
@@ -307,9 +314,9 @@ This code above defines a `_sendFunds` function, which takes in two parameters -
 
 `payable(propertyOwner).transfer(value)` :This transfers the specified `value` of Celo to the `propertyOwner` address.
 
-#### `_MarkPropropertyAsInactive` Function
+#### `_MarkPropropertyAsInactive` Function:
 
-Add the code below to your smart contract.
+Add the code below to your Smart Contract:
 
 ```solidity
 function markPropertyAsInactive(uint256 _propertyId) public {
@@ -324,14 +331,126 @@ function markPropertyAsInactive(uint256 _propertyId) public {
 
 This code above defines a function called `markPropertyAsInactive` that takes in one parameter, `_propertyId`. Below is a detailed explanation of the function:
 
-* `require(properties[_propertyId].owner == msg.sender, "THIS IS NOT YOUR PROPERTY")`: This checks whether `msg.sender` (i.e., the caller of the function) is the owner of the specified property. If the caller is not the owner, the function will throw an error message.
+1. `require(properties[_propertyId].owner == msg.sender, "THIS IS NOT YOUR PROPERTY")`: This checks whether `msg.sender` (i.e., the caller of the function) is the owner of the specified property. If the caller is not the owner, the function will throw an error message.
     
-* `properties[_propertyId].isActive = false`: This sets the owner's property `isActive` to `false`, effectively making it inactive.
+2. `properties[_propertyId].isActive = false`: This sets the owner's property `isActive` to `false`, effectively making it inactive.
+
+### Entire code:
+
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.0 <0.9.0;
+
+contract RentalServices {
+
+  // struct for Property to be rented out
+  struct Property {
+    string name;
+    string description;
+    bool isActive; // is property active
+    uint256 price; // per day price 
+    address owner; // property owner
+    bool[] isBooked;
+    // Is the property booked on a particular day,
+    // For the sake of simplicity, we assign 0 to Jan 1, 1 to Jan 2 and so on
+    // so isBooked[31] will denote whether the property is booked for Feb 1
+  }
+
+  uint256 public propertyId;
+
+  // mapping of propertyId to Property object
+  mapping(uint256 => Property) public properties;
+
+  struct Booking {
+    uint256 propertyId;
+    uint256 checkInDate;
+    uint256 checkoutDate;
+    address user;
+  }
+
+  uint256 public bookingId;
+
+  // mapping of bookingId to Booking object
+  mapping(uint256 => Booking) public bookings;
+
+  // This event is emitted when a new property is put up for sale
+  event NewProperty (
+    uint256 indexed propertyId
+  );
+
+  // This event is emitted when a NewBooking is made
+  event NewBooking (
+    uint256 indexed propertyId,
+    uint256 indexed bookingId
+  );
+
+  function rentOutproperty(string memory name, string memory description, uint256 price) public {
+    // Create a new Property object
+    Property memory property = Property(name, description, true /* isActive */, price, msg.sender /* owner */, new bool[](365));
+
+    // Persist `property` object to the "permanent" storage
+    properties[propertyId] = property;
+
+    // emit an event to notify the clients
+    emit NewProperty(propertyId++);
+  }
+
+  function rentProperty(uint256 _propertyId, uint256 checkInDate, uint256 checkoutDate) public payable {
+    // Retrieve `property` object from the storage
+    Property storage property = properties[_propertyId];
+
+    // check that property is active
+    require(property.isActive == true, "Property with this ID is not active");
+
+    // check that property is available for the dates
+    for (uint256 i = checkInDate; i < checkoutDate; i++) {
+      require(property.isBooked[i] == false, "Property is not available for the selected dates");
+    }
+
+    // Check the customer has sent an amount equal to (pricePerDay * numberOfDays)
+    uint256 totalPrice = property.price * (checkoutDate - checkInDate);
+    require(msg.value == totalPrice, "Sent insufficient funds");
+
+    // send funds to the owner of the property
+    _sendFunds(property.owner, msg.value);
+
+    // conditions for a booking are satisfied, so make the booking
+    _createBooking(_propertyId, checkInDate, checkoutDate);
+  }
+
+  function _createBooking(uint256 _propertyId, uint256 checkInDate, uint256 checkoutDate) internal {
+    // Create a new booking object
+    bookings[bookingId] = Booking(_propertyId, checkInDate, checkoutDate, msg.sender);
+
+    // Retrieve `property` object from the storage
+    Property storage property = properties[_propertyId];
+
+    // Mark the property booked on the requested dates
+    for (uint256 i = checkInDate; i < checkoutDate; i++) {
+      property.isBooked[i] = true;
+    }
+
+    // Emit an event to notify clients
+    emit NewBooking(_propertyId, bookingId++);
+  }
+
+  function _sendFunds(address propertyOwner, uint256 value) internal {
+    // Send funds to the property owner
+    (bool success, ) = payable(propertyOwner).call{value: value}("");
+    require(success, "Failed to send funds");
+  }
+
+  function markPropertyAsInactive(uint256 _propertyId) public {
+    // Check if the property belongs to the caller
+    require(properties[_propertyId].owner == msg.sender, "This is not your property");
+
+    // Mark the property as inactive
+    properties[_propertyId].isActive = false;
+  }
+}
     
+## Test Smart Contract:
 
-## Test Smart Contract
-
-Before we can test our smart contract, we need to [compile and deploy](https://docs.celo.org/developer/deploy/remix) it. when you are done compiling and deploying your smart contract, test some of the functions and variables
+Before we can test our Smart Contract, we need to [compile and deploy](https://docs.celo.org/developer/deploy/remix) it. when you are done compiling and deploying your smart contract, test some of the functions and variables
 
 In deploy and run transactions tabs:
 
@@ -339,10 +458,9 @@ In deploy and run transactions tabs:
     
 2. Expand your contracts. You will see buttons for functions and state variables
     
+### Test `rentOutProperty` Function:
 
-### Test `rentOutProperty` Function
-
-Follow the steps below to test the `rentOutProperty` function
+Follow the steps below to test the `rentOutProperty` function:
 
 1. Expand the input fields next to the **rentOutProperty** button.
     
@@ -352,14 +470,13 @@ Follow the steps below to test the `rentOutProperty` function
     
 4. Confirm transaction in metamask wallet.
     
-
 You can refer to the image below:
 
 <img src="https://github.com/segzyI/celo-Tutorial-101/blob/main/rent/rent-out-property.png" height="500">
 
-### Test `rentProperty` Function
+### Test `rentProperty` Function:
 
-Follow the steps below to test the `rentProperty` function
+Follow the steps below to test the `rentProperty` function:
 
 1. Expand the input fields next to the **rentProperty** button.
     
@@ -372,14 +489,13 @@ Follow the steps below to test the `rentProperty` function
     
 5. Confirm transaction in metamask wallet.
     
-
 You can refer to the image below:
 
 <img src="https://github.com/segzyI/celo-Tutorial-101/blob/main/rent/rent-property.png" height="500">
 
-### Test `bookings` Mapping
+### Test `bookings` Mapping:
 
-Follow the steps below to test the `bookings` mapping
+Follow the steps below to test the `bookings` mapping:
 
 1. Expand the input fields next to the **bookings** button.
     
@@ -387,14 +503,13 @@ Follow the steps below to test the `bookings` mapping
     
 3. Click on the **call** button.
     
-
 You can refer to the image below:
 
 <img src="https://github.com/segzyI/celo-Tutorial-101/blob/main/rent/bookings.png" height="500">
 
-### Test `properties` Mapping
+### Test `properties` Mapping:
 
-Follow the steps below to test the `properties` mapping
+Follow the steps below to test the `properties` mapping:
 
 1. Expand the input fields next to the **bookings** button.
     
@@ -402,14 +517,13 @@ Follow the steps below to test the `properties` mapping
     
 3. Click on the **call** button.
     
-
 You can refer to the image below:
 
 <img src="https://github.com/segzyI/celo-Tutorial-101/blob/main/rent/properties.png" height="500">
 
-### Test `markPropertyAsInactive` Function
+### Test `markPropertyAsInactive` Function:
 
-Follow the steps below to test the `markPropertyAsInactive` f00unction
+Follow the steps below to test the `markPropertyAsInactive` function:
 
 1. Expand the input fields next to the **markPropertyAsInactive** button.
     
@@ -419,14 +533,12 @@ Follow the steps below to test the `markPropertyAsInactive` f00unction
     
 4. Confirm transaction in metamask wallet.
     
-
 You can refer to the image below:
 
 <img src="https://github.com/segzyI/celo-Tutorial-101/blob/main/rent/active.png" alt="" height="500">
 
+## Conclusion:
 
-## Conclusion
-
-We learned how to build a rentals service smart contract on the Celo blockchain network. You can improve the functionalities or build an interactive user interface for the smart contract.
+Hence, we learned how to build a Rentals Service Smart Contract on the Celo blockchain network. You can improve the functionalities or build an interactive user interface for the Smart Contract.
 
 The complete code is available on [github](https://github.com/segzyI/celo-Tutorial-101/blob/main/RentalServices.sol).
